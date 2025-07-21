@@ -341,8 +341,13 @@
         function isThisWeek(date) {
             const today = new Date();
             const checkDate = new Date(date);
-            const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1)); // Monday
-            const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 7)); // Sunday
+        
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
+        
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6); // Saturday
+        
             return checkDate >= startOfWeek && checkDate <= endOfWeek;
         }
 
