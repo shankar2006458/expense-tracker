@@ -229,6 +229,19 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content confirm-box">
+            <div class="modal-icon">⚠️</div>
+                <h3 class="modal-title">Delete Expense?</h3>
+            <p class="modal-message">This action cannot be undone. Are you sure you want to continue?</p>
+            <div class="modal-actions">
+                <button id="confirm-delete-btn" class="btn btn-danger">Yes, Delete</button>
+                <button id="cancel-delete-btn" class="btn btn-outline">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div id="toast-container" class="toast-container"></div>
     
@@ -289,7 +302,7 @@
             'Investments': '📈',
             'Gifts & Donations': '🎁',
             'Personal Care': '💅',
-            'Petrol': '🏠',
+            'Petrol': '⛽',
             'Technology': '💻',
             'Other': '📦'
         };
@@ -341,13 +354,13 @@
         function isThisWeek(date) {
             const today = new Date();
             const checkDate = new Date(date);
-        
+
             const startOfWeek = new Date(today);
             startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
-        
+
             const endOfWeek = new Date(startOfWeek);
             endOfWeek.setDate(startOfWeek.getDate() + 6); // Saturday
-        
+
             return checkDate >= startOfWeek && checkDate <= endOfWeek;
         }
 
@@ -870,13 +883,41 @@
             });
         }
 
+        let expenseToDelete = null;
+
         function deleteExpense(expenseId) {
-            if (confirm('Are you sure you want to delete this expense?')) {
-                db.collection('expenses').doc(expenseId).delete().then(() => {
-                    showToast('Expense Deleted', 'Expense has been removed.', 'error');
-                });
-            }
+        expenseToDelete = expenseId;
+        const modal = document.getElementById('delete-modal');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
         }
+
+        // Confirm delete
+        document.getElementById('confirm-delete-btn').addEventListener('click', () => {
+        if (expenseToDelete) {
+            db.collection('expenses').doc(expenseToDelete).delete().then(() => {
+            showToast('Expense Deleted', 'Expense has been removed.', 'error');
+            });
+            expenseToDelete = null;
+        }
+        closeDeleteModal();
+        });
+
+        // Cancel delete
+        document.getElementById('cancel-delete-btn').addEventListener('click', closeDeleteModal);
+
+        function closeDeleteModal() {
+        const modal = document.getElementById('delete-modal');
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+        }
+
+        // Close delete modal when clicking outside the box
+        document.getElementById('delete-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'delete-modal') {
+            closeDeleteModal();
+        }
+        });
 
         // Event listeners
         function initializeEventListeners() {
